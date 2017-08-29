@@ -41,12 +41,12 @@ export default {
 
     methods: {
         add() {
-            const project = Object.assign(this.boilerplate, {title: "New TODO List"});
+            const project = Object.assign({}, this.boilerplate, {title: "New TODO List"});
             
             this.$http.post('/projects', project).then(response => {
                 this.projects.push(response.data);
-            }, response => {
-                console.log(`Error: ${response}`);
+            }, error => {
+                console.log(`Error: ${error}`);
             });
         },
 

@@ -8351,7 +8351,8 @@ button.close {
 }
 
 .glyphicon-pencil,
-.glyphicon-trash {
+.glyphicon-trash,
+.glyphicon-ban-circle {
   cursor: pointer;
 }
 

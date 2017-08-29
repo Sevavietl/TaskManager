@@ -18,6 +18,7 @@ class CreateTasksTable extends Migration
             $table->unsignedInteger('project_id');
             $table->string('description', 100);
             $table->boolean('done')->default(false);
+            $table->date('deadline')->nullable();
             $table->timestamps();
 
             $table->foreign('project_id')

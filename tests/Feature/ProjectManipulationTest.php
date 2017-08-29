@@ -18,11 +18,12 @@ class ProjectManipulationTest extends TestCase
     public function a_user_can_create_project()
     {   
         $this->signIn()
-            ->post('/projects', ($project = make('App\Project', ['user_id' => auth()->id()]))->toArray())
+            ->makeProject()
+            ->json('POST', '/projects', $this->project->toArray())
             ->assertStatus(201)
-            ->assertJson($project->toArray());
+            ->assertJson($this->project->toArray());
             
-        $this->assertEquals($project->title, Project::owned()->first()->title);
+        $this->assertEquals($this->project->title, Project::owned()->first()->title);
     }
 
     /**
@@ -30,14 +31,10 @@ class ProjectManipulationTest extends TestCase
      */
     public function a_project_requires_a_title()
     {
-        $this->signIn()
-            ->post(
-                '/projects',
-                ($project = make('App\Project', [
-                    'title' => null,
-                    'user_id' => auth()->id()])
-                )->toArray()
-            )
+        $this->withExceptionHandling()
+            ->signIn()
+            ->createProject(['title' => ''])
+            ->json('POST', '/projects', $this->project->toArray())
             ->assertStatus(422)
             ->assertJson(['title' => ['The title field is required.']]);
     }
@@ -47,14 +44,12 @@ class ProjectManipulationTest extends TestCase
      */
     public function a_user_can_delete_a_project()
     {
-        $this->signIn();
-
-        $project = create('App\Project', ['user_id' => auth()->id()]);
-
-        $this->call('DELETE', "/projects/{$project->id}")
+        $this->signIn()
+            ->createProject()
+            ->call('DELETE', "/projects/{$this->project->id}")
             ->assertStatus(204);
 
-        $this->assertEmpty(Project::find($project->id));
+        $this->assertEmpty(Project::find($this->project->id));
     }
     
     /**
@@ -62,32 +57,56 @@ class ProjectManipulationTest extends TestCase
      */
     public function a_user_can_update_a_project()
     {
-        $this->signIn();
-
-        $project = create('App\Project', ['user_id' => auth()->id()]);
-
-        $project->title = 'Foo Bar Baz';
-
-        $this->call('PUT', "/projects/{$project->id}", $project->toArray())
+        $this->signIn()
+            ->createProject()
+            ->editProject(['title' => 'Foo Bar Baz'])
+            ->json('PUT', "/projects/{$this->project->id}", $this->project->toArray())
             ->assertStatus(200)
-            ->assertJson($project->toArray());
+            ->assertJson($this->project->toArray());
 
-        $this->assertEquals($project->title, Project::find($project->id)->title);
+        $this->assertEquals($this->project->title, Project::find($this->project->id)->title);
     }
 
     /**
      * @test 
      */
-     public function a_project_cannot_be_updated_without_a_title()
-     {
-        $this->signIn();
-        
-        $project = create('App\Project', ['user_id' => auth()->id()]);
-
-        $project->title = null;
-
-        $this->call('PUT', "/projects/{$project->id}", $project->toArray())
+    public function a_project_cannot_be_updated_without_a_title()
+    {
+        $this->withExceptionHandling()
+            ->signIn()
+            ->createProject()
+            ->editProject(['title' => ''])
+            ->json('PUT', "/projects/{$this->project->id}", $this->project->toArray())
             ->assertStatus(422)
             ->assertJson(['title' => ['The title field is required.']]);
-     }
+    }
+
+    protected function makeProject($attributes = [])
+    {
+        $this->project = make('App\Project', array_merge(
+            ['user_id' => auth()->id()],
+            $attributes
+        ));
+
+        return $this;
+    }
+    
+    protected function createProject($attributes = [])
+    {
+        $this->project = create('App\Project', array_merge(
+            ['user_id' => auth()->id()],
+            $attributes
+        ));
+
+        return $this;
+    }
+
+    protected function editProject($attributes = [])
+    {
+        foreach ($attributes as $attribute => $value) {
+            $this->project->$attribute = $value;
+        }
+
+        return $this;
+    }
 }

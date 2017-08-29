@@ -38,4 +38,19 @@ class ProjectTest extends TestCase
 
         $this->assertEmpty($projects);
     }
+
+    /** 
+     * @test
+     */
+    public function project_has_tasks()
+    {
+        $this->signIn();
+        
+        $project = create('App\Project', ['user_id' => auth()->id()]);
+
+        $this->assertInstanceOf(
+            'Illuminate\Database\Eloquent\Collection',
+            $project->tasks
+        ); 
+    }
 }

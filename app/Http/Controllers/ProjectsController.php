@@ -35,13 +35,9 @@ class ProjectsController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $this->validate($request, [
             'title' => 'required|max:100'
         ]);
-
-        if ($validator->fails()) {
-            return response($validator->errors(), 422);
-        }
 
         $project = Project::create([
             'title' => request('title'),
@@ -55,18 +51,14 @@ class ProjectsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Project $project)
     {
-        $validator = Validator::make($request->all(), [
+        $this->validate($request, [
             'title' => 'required|max:100'
         ]);
-
-        if ($validator->fails()) {
-            return response($validator->errors(), 422);
-        }
 
         $project->title = request('title');
         $project->save();
@@ -77,12 +69,12 @@ class ProjectsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Project  $project
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Project $project)
     {
-        Project::destroy($id);
+        $project->delete();
 
         return response(null, 204);
     }

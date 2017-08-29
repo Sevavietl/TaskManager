@@ -26,13 +26,17 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
 $factory->define(App\Project::class, function (Faker\Generator $faker) {
     return [
         'title' => $faker->sentence(3),
-        'user_id' => factory(App\User::class)->create()
+        'user_id' => function () {
+            return factory(App\User::class)->create();
+        }
     ];
 });
 
 $factory->define(App\Task::class, function (Faker\Generator $faker) {
     return [
-        'project_id' => factory(App\Project::class)->create(),
+        'project_id' => function () {
+            factory(App\Project::class)->create();
+        },
         'description' => $faker->sentence(5),
         'done' => $faker->boolean
     ];
