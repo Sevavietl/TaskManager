@@ -46,7 +46,14 @@
                     v-for="(task, index) in project.tasks"
                     :key="task.id"
                     :task.sync="task"
+
+                    :show-move-up="index !== 0"
+                    :show-move-down="index < (project.tasks.length - 1)"
+
                     @remove="removeTask(index)"
+
+                    @move-up="moveTaskUp"
+                    @move-down="moveTaskDown"
                 ></task>    
             </ul>
         </div>
@@ -76,18 +83,6 @@ export default {
             editing: false,
             title: null,
         };
-    },
-
-    computed: {
-        // // const order = this.project.tasks_order || [20, 19, 18];
-
-        // orderedTasks() {
-        //     const order = [20, 19, 18];
-            
-        //     return this.project.tasks.sort((a, b) => {
-        //         return order.indexOf(a) - order.indexOf(b);
-        //     });
-        // }
     },
 
     created() {
@@ -134,10 +129,18 @@ export default {
             }
 
             this.project.tasks.push(task);
+            
+            if (this.project.tasks_order === undefined) {
+                this.project.tasks_order = [];
+            }
+
+            this.project.tasks_order.push(task.id);
         },
 
         removeTask(index) {
             Vue.delete(this.project.tasks, index);
+            Vue.delete(this.project.tasks_order, index);
+            this.project.tasks_order = this.project.tasks_order.filter(val => val);
         },
 
         sortTasks() {
@@ -145,6 +148,65 @@ export default {
 
             this.project.tasks && this.project.tasks.sort((a, b) => {
                 return order.indexOf(a.id) - order.indexOf(b.id);
+            });
+        },
+
+        moveTaskUp(taskId){
+            const tasksOrder = this.project.tasks_order || [];
+            let index = tasksOrder.indexOf(taskId);
+
+            if (index <= 0) {
+                return;
+            }
+
+            index -= 1;
+            this.project.tasks_order = tasksOrder.reduce((carry, id, i) => {
+                if (i === index) {
+                    carry.push(taskId);
+                }
+                
+                if (id !== taskId) {
+                    carry.push(id)
+                }
+
+                return carry;
+            }, []);
+
+            this.updateTasksOrder();
+        },
+
+        moveTaskDown(taskId) {
+            const tasksOrder = this.project.tasks_order || [];
+            let index = tasksOrder.indexOf(taskId);
+
+            if (index < 0 || index === tasksOrder.length - 1) {
+                return;
+            }
+
+            index += 1;
+            this.project.tasks_order = tasksOrder.reduce((carry, id, i) => {
+                if (id !== taskId) {
+                    carry.push(id)
+                }
+                
+                if (i === index) {
+                    carry.push(taskId);
+                }
+
+                return carry;
+            }, []);
+
+            this.updateTasksOrder();
+        },
+
+        updateTasksOrder() {
+            this.$http.put(
+                `/projects/${this.project.id}`,
+                this.project
+            ).then(response => {
+                this.sortTasks()
+            }, error => {
+
             });
         }
     }

@@ -27,4 +27,28 @@ class Project extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    public function addTaskToOrder($taskId)
+    {
+        $this->tasks_order = array_merge(($this->tasks_order ?: []), [$taskId]);
+        $this->save();
+    }
+    
+    public function removeTaskFromOrder($taskId)
+    {
+        $this->tasks_order = array_reduce(
+            $this->tasks_order,
+            function ($carry, $id) use ($taskId) {
+                if ($id !== $taskId) {
+                    $carry[] = $id;
+                }
+
+                return $carry;
+            },
+            []
+        );
+
+        $this->save();
+    }
+
 }

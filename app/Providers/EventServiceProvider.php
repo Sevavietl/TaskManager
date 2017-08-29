@@ -16,6 +16,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\TaskCreated' => [
             'App\Listeners\AddTaskIdToTheProjectTasksOrder',
         ],
+        'App\Events\TaskDeleted' => [
+            'App\Listeners\RemoveTaskIdFromTheProjectTasksOrder',
+        ],
     ];
 
     /**

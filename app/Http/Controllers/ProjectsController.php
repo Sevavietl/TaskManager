@@ -22,7 +22,7 @@ class ProjectsController extends Controller
      */
     public function index()
     {
-        $projects = Project::owned()->with('tasks')->get();
+        $projects = Project::owned()->with('tasks')->paginate(2);
 
         return view('home', compact('projects'));
     }
@@ -44,7 +44,7 @@ class ProjectsController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return response($project, 201);
+        return response($project->load('tasks'), 201);
     }
 
     /**
@@ -61,6 +61,7 @@ class ProjectsController extends Controller
         ]);
 
         $project->title = request('title');
+        $project->tasks_order = request('tasks_order') ?: $project->tasks_order;
         $project->save();
 
         return response($project);

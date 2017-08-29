@@ -100,6 +100,20 @@ class TaskManipulationTest extends TestCase
             ->assertJson(['description' => ['The description field is required.']]);
     }
 
+    /**
+     * @test 
+     */
+    public function a_user_can_reorder_tasks_in_the_project()
+    {
+        $this->signIn()
+            ->createTasks([], 3)
+            ->shuffleTasks()
+            ->json('PUT', "/projects/{$this->project->id}", $this->project->toArray())
+            ->assertStatus(200);
+
+        $this->assertEquals($this->project->tasks_order, $this->tasks->first()->project->refresh()->tasks_order);
+    }
+
     protected function makeTask($attributes = [])
     {
         $this->project = create('App\Project', ['user_id' => auth()->id()]);
@@ -118,6 +132,27 @@ class TaskManipulationTest extends TestCase
             ['project_id' => $this->project->id],
             $attributes
         ));
+
+        return $this;
+    }
+
+    protected function createTasks($attributes = [], $number = 1)
+    {
+        $this->project = create('App\Project', ['user_id' => auth()->id()]);
+        $this->tasks = create('App\Task', array_merge(
+            ['project_id' => $this->project->id],
+            $attributes
+        ), $number);
+
+        return $this;
+    }
+
+    protected function shuffleTasks()
+    {
+        $this->project->refresh();
+        $tasksOrder = $this->project->tasks_order;
+        shuffle($tasksOrder);
+        $this->project->tasks_order = $tasksOrder;
 
         return $this;
     }

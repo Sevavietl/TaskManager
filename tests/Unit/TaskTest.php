@@ -23,8 +23,25 @@ class TaskTest extends TestCase
      */
     public function when_task_created_it_must_be_added_to_a_project_tasks_order()
     {
-        $this->createTask()
-            ->assertEquals([$this->task->id], $this->task->project->tasks_order);
+        $this->createTask();
+
+        $task = create('App\Task', ['project_id' => $this->project->id]);
+        
+        $this->assertEquals([$this->task->id, $task->id], $this->project->fresh()->tasks_order);
+    }
+
+    /**
+     * @test
+     */
+    public function when_task_deleted_it_must_be_removed_to_a_project_tasks_order()
+    {
+        $this->createTask();
+
+        $task = create('App\Task', ['project_id' => $this->project->id]);
+        
+        $this->task->delete();
+        
+        $this->assertEquals([$task->id], $this->project->fresh()->tasks_order);
     }
 
     protected function createTask()

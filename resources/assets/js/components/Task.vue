@@ -29,6 +29,9 @@
                 <div v-if="hover" class="pull-right">
                     <span v-if="editing" class="glyphicon glyphicon-ban-circle text-danger" aria-hidden="true" @click="cancel"></span>
                     <span v-else class="glyphicon glyphicon-pencil" aria-hidden="true" @click="edit"></span>
+                    
+                    <span v-show="showMoveUp" class="glyphicon glyphicon-triangle-top" aria-hidden="true" @click="moveUp"></span>
+                    <span v-show="showMoveDown" class="glyphicon glyphicon-triangle-bottom" aria-hidden="true" @click="moveDown"></span>
 
                     <span class="glyphicon glyphicon-trash" aria-hidden="true" @click="remove"></span>
                 </div>
@@ -45,7 +48,7 @@ export default {
         ErrorsMixin
     ],
 
-    props: ['task'],
+    props: ['task', 'showMoveUp', 'showMoveDown'],
 
     data() {
         return {
@@ -90,6 +93,16 @@ export default {
             }, error => {
 
             });
+        },
+
+        moveUp()
+        {
+            this.$emit('move-up', this.task.id);
+        },
+
+        moveDown()
+        {
+            this.$emit('move-down', this.task.id);
         },
     }
 }

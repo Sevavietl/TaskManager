@@ -42501,6 +42501,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -42523,20 +42530,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             title: null
         };
     },
-
-
-    computed: {
-        // // const order = this.project.tasks_order || [20, 19, 18];
-
-        // orderedTasks() {
-        //     const order = [20, 19, 18];
-
-        //     return this.project.tasks.sort((a, b) => {
-        //         return order.indexOf(a) - order.indexOf(b);
-        //     });
-        // }
-    },
-
     created: function created() {
         this.title = this.project.title;
         this.sortTasks();
@@ -42577,9 +42570,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
 
             this.project.tasks.push(task);
+
+            if (this.project.tasks_order === undefined) {
+                this.project.tasks_order = [];
+            }
+
+            this.project.tasks_order.push(task.id);
         },
         removeTask: function removeTask(index) {
             Vue.delete(this.project.tasks, index);
+            Vue.delete(this.project.tasks_order, index);
+            this.project.tasks_order = this.project.tasks_order.filter(function (val) {
+                return val;
+            });
         },
         sortTasks: function sortTasks() {
             var order = this.project.tasks_order || [];
@@ -42587,6 +42590,59 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.project.tasks && this.project.tasks.sort(function (a, b) {
                 return order.indexOf(a.id) - order.indexOf(b.id);
             });
+        },
+        moveTaskUp: function moveTaskUp(taskId) {
+            var tasksOrder = this.project.tasks_order || [];
+            var index = tasksOrder.indexOf(taskId);
+
+            if (index <= 0) {
+                return;
+            }
+
+            index -= 1;
+            this.project.tasks_order = tasksOrder.reduce(function (carry, id, i) {
+                if (i === index) {
+                    carry.push(taskId);
+                }
+
+                if (id !== taskId) {
+                    carry.push(id);
+                }
+
+                return carry;
+            }, []);
+
+            this.updateTasksOrder();
+        },
+        moveTaskDown: function moveTaskDown(taskId) {
+            var tasksOrder = this.project.tasks_order || [];
+            var index = tasksOrder.indexOf(taskId);
+
+            if (index < 0 || index === tasksOrder.length - 1) {
+                return;
+            }
+
+            index += 1;
+            this.project.tasks_order = tasksOrder.reduce(function (carry, id, i) {
+                if (id !== taskId) {
+                    carry.push(id);
+                }
+
+                if (i === index) {
+                    carry.push(taskId);
+                }
+
+                return carry;
+            }, []);
+
+            this.updateTasksOrder();
+        },
+        updateTasksOrder: function updateTasksOrder() {
+            var _this3 = this;
+
+            this.$http.put('/projects/' + this.project.id, this.project).then(function (response) {
+                _this3.sortTasks();
+            }, function (error) {});
         }
     }
 });
@@ -42945,13 +43001,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     mixins: [__WEBPACK_IMPORTED_MODULE_0__ErrorsMixin_js__["a" /* default */]],
 
-    props: ['task'],
+    props: ['task', 'showMoveUp', 'showMoveDown'],
 
     data: function data() {
         return {
@@ -42995,6 +43054,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.$http.delete('/projects/' + this.task.project_id + '/tasks/' + this.task.id).then(function (response) {
                 _this2.$emit('remove');
             }, function (error) {});
+        },
+        moveUp: function moveUp() {
+            this.$emit('move-up', this.task.id);
+        },
+        moveDown: function moveDown() {
+            this.$emit('move-down', this.task.id);
         }
     }
 });
@@ -43114,6 +43179,34 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     },
     on: {
       "click": _vm.edit
+    }
+  }), _vm._v(" "), _c('span', {
+    directives: [{
+      name: "show",
+      rawName: "v-show",
+      value: (_vm.showMoveUp),
+      expression: "showMoveUp"
+    }],
+    staticClass: "glyphicon glyphicon-triangle-top",
+    attrs: {
+      "aria-hidden": "true"
+    },
+    on: {
+      "click": _vm.moveUp
+    }
+  }), _vm._v(" "), _c('span', {
+    directives: [{
+      name: "show",
+      rawName: "v-show",
+      value: (_vm.showMoveDown),
+      expression: "showMoveDown"
+    }],
+    staticClass: "glyphicon glyphicon-triangle-bottom",
+    attrs: {
+      "aria-hidden": "true"
+    },
+    on: {
+      "click": _vm.moveDown
     }
   }), _vm._v(" "), _c('span', {
     staticClass: "glyphicon glyphicon-trash",
@@ -43252,7 +43345,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     return _c('task', {
       key: task.id,
       attrs: {
-        "task": task
+        "task": task,
+        "show-move-up": index !== 0,
+        "show-move-down": index < (_vm.project.tasks.length - 1)
       },
       on: {
         "update:task": function($event) {
@@ -43260,7 +43355,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         },
         "remove": function($event) {
           _vm.removeTask(index)
-        }
+        },
+        "move-up": _vm.moveTaskUp,
+        "move-down": _vm.moveTaskDown
       }
     })
   }))], 1)])

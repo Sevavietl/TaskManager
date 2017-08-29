@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Events\TaskCreated;
+use App\Events\TaskDeleted;
 
 class Task extends Model
 {
@@ -12,6 +13,7 @@ class Task extends Model
 
     protected $events = [
         'created' => TaskCreated::class,
+        'deleted' => TaskDeleted::class,
     ];
 
     public function getDoneAttribute($value)
@@ -26,8 +28,11 @@ class Task extends Model
 
     public function pushSelfIdToProjectTasksOrder()
     {
-        $project = $this->project;
-        $project->tasks_order = $project->tasks_order ?: [] + [$this->id];
-        $project->save();
+        $this->project->fresh()->addTaskToOrder($this->id);
+    }
+
+    public function removeSelfIdFromProjectTasksOrder()
+    {
+        $this->project->fresh()->removeTaskFromOrder($this->id);
     }
 }
