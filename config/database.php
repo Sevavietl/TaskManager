@@ -58,7 +58,7 @@ return [
             'driver' => 'mysql',
             'host' => isset(parse_url(getenv("DATABASE_URL"))["host"]) ? parse_url(getenv("DATABASE_URL"))["host"] : '',
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'task_manager'),
+            'database' => env('DB_DATABASE', 'heroku_37e81a85da980b5'),
             'username' => isset(parse_url(getenv("DATABASE_URL"))["user"]) ? parse_url(getenv("DATABASE_URL"))["user"] : '',
             'password' => isset(parse_url(getenv("DATABASE_URL"))["pass"]) ? parse_url(getenv("DATABASE_URL"))["pass"] : '',
             'unix_socket' => env('DB_SOCKET', ''),
