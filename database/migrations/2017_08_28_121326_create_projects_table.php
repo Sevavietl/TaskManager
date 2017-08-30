@@ -17,7 +17,7 @@ class CreateProjectsTable extends Migration
             $table->increments('id');
             $table->string('title', 100);
             $table->unsignedInteger('user_id');
-            $table->blob('tasks_order')->nullable();
+            $table->binary('tasks_order')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')
