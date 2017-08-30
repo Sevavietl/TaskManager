@@ -72,6 +72,8 @@
         </nav>
 
         @yield('content')
+        
+        <v-dialog/>
     </div>
 
     <!-- Scripts -->

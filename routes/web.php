@@ -14,6 +14,7 @@
 Auth::routes();
 
 Route::get('/', 'ProjectsController@index');
+
 Route::post('/projects', 'ProjectsController@store');
 Route::delete('/projects/{project}', 'ProjectsController@destroy');
 Route::put('/projects/{project}', 'ProjectsController@update');

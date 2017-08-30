@@ -103,10 +103,22 @@ export default {
         },
 
         remove() {
-            axios.delete(`/projects/${this.project.id}`).then(response => {
-                this.$emit('remove');
-            }, error => {
-
+            this.$modal.show('dialog', {
+                text: 'You are sure you want to delete this project?',
+                buttons: [
+                    {
+                        title: 'Yes',
+                        handler: () => {
+                            axios.delete(`/projects/${this.project.id}`).then(response => {
+                                this.$emit('remove');
+                                this.$modal.hide('dialog');
+                            }, error => {
+                                this.$modal.hide('dialog');
+                            });
+                        },
+                    },
+                    { title: 'No' }
+                ]
             });
         },
 

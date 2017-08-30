@@ -9,6 +9,10 @@ require('./bootstrap');
 
 window.Vue = require('vue');
 
+import VModal from 'vue-js-modal'
+
+Vue.use(VModal, { dialog: true });
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -24,8 +28,6 @@ axios.interceptors.response.use(undefined, error => {
 
     return Promise.reject(error);
 });
-
-Vue.prototype.$http = axios.create();
 
 Vue.component('projects', require('./components/Projects.vue'));
 
