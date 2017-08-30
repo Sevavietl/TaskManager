@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import ErrorsMixin from './ErrorsMixin.js';
+import ErrorsMixin from './mixins/ErrorsMixin.js';
 
 export default {
     mixins: [

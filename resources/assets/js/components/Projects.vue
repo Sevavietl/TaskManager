@@ -24,7 +24,7 @@ export default {
         Project
     },
 
-    props: ['dataProjects'],
+    props: ['dataProjects', 'currentPage'],
 
     data() {
         return {
@@ -36,6 +36,10 @@ export default {
     },
 
     created() {
+        if (this.dataProjects.length === 0 && this.currentPage > 1) {
+            window.location.replace('/');
+        }
+
         this.projects = this.dataProjects;
     },
 
@@ -44,14 +48,14 @@ export default {
             const project = Object.assign({}, this.boilerplate, {title: "New TODO List"});
             
             this.$http.post('/projects', project).then(response => {
-                this.projects.push(response.data);
+                window.location.replace('/');
             }, error => {
                 console.log(`Error: ${error}`);
             });
         },
 
         remove(index) {
-            Vue.delete(this.projects, index);
+            window.location.reload();
         }
     }
 }

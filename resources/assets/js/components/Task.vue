@@ -1,20 +1,20 @@
 <template>
     <li
         class="list-group-item"
-        @mouseenter.stop="hover = true"
-        @mouseleave.stop="hover = false"
+        @mouseenter.stop="showIcons"
+        @mouseleave.stop="hideIcons"
     >
         <div class="row">
-            <div class="col-sm-1 col-md-1 col-lg-1">
+            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
                 <input type="checkbox" v-model="task.done" :disabled="editing" @change="submit">
             </div>
-            <div class="col-sm-9  col-md-9 col-lg-9">
+            <div class="col-xs-7 col-sm-8  col-md-8 col-lg-8">
                 <div class="form-group" :class="{'has-error': errors.description}" v-if="editing">
                     <input
                         :ref="'descriptionInput'"
                         type="text"
                         class="form-control"
-                        v-model="description"
+                        v-model="field"
                         @keyup.enter="submit"
                         @keyup.esc="cancel"
                         @focus="removeErrors('description')"
@@ -25,10 +25,24 @@
                     {{ task.description }}
                 </span>
             </div>
-            <div class="col-sm-2  col-md-2 col-lg-2">
-                <div v-if="hover" class="pull-right">
+            <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+                <div v-show="hover" class="pull-right">
                     <span v-if="editing" class="glyphicon glyphicon-ban-circle text-danger" aria-hidden="true" @click="cancel"></span>
                     <span v-else class="glyphicon glyphicon-pencil" aria-hidden="true" @click="edit"></span>
+                    
+                    <datepicker
+                        calendar-class="inner-calendar"
+                        input-class="invisible-input"
+                        :calendar-button="true"
+                        calendar-button-icon="glyphicon glyphicon-calendar"
+                        
+                        :clear-button="task.deadline !== null"
+                        clear-button-icon="glyphicon glyphicon-calendar text-danger"
+
+                        :value="task.deadline"
+
+                        @selected="setDeadline"
+                    ></datepicker> 
                     
                     <span v-show="showMoveUp" class="glyphicon glyphicon-triangle-top" aria-hidden="true" @click="moveUp"></span>
                     <span v-show="showMoveDown" class="glyphicon glyphicon-triangle-bottom" aria-hidden="true" @click="moveDown"></span>
@@ -41,39 +55,35 @@
 </template>
 
 <script>
-import ErrorsMixin from './ErrorsMixin.js';
+import Datepicker from 'vuejs-datepicker';
+import IconsMixin from './mixins/IconsMixin.js';
+import EditMixin from './mixins/EditMixin.js';
+import ErrorsMixin from './mixins/ErrorsMixin.js';
 
 export default {
     mixins: [
+        IconsMixin,
+        EditMixin,
         ErrorsMixin
     ],
 
-    props: ['task', 'showMoveUp', 'showMoveDown'],
-
-    data() {
-        return {
-            hover: false,
-            editing: false,
-            description: null
-        }
+    components: {
+        Datepicker
     },
 
+    props: ['task', 'showMoveUp', 'showMoveDown'],
+
     created() {
-        this.description = this.task.description;
+        this.editValuePath = 'task.description';
     },
 
     methods: {
-        edit() {
-            this.description = this.task.description;
-            this.editing = true;
-        },
-
         submit() {
-            const task = Object.assign({}, this.task, {description: this.description});
+            const task = Object.assign({}, this.task, {description: this.field});
 
             this.$http.put(`/projects/${this.task.project_id}/tasks/${task.id}`, task).then(response => {
                 this.task.description = response.data.description;
-                this.editing = false;
+                this.cancel();
             }, error => {
                 const response = error.response;
 
@@ -81,10 +91,6 @@ export default {
                     this.errors = response.data;
                 }
             });
-        },
-
-        cancel() {
-            this.editing = false;
         },
 
         remove() {
@@ -104,6 +110,14 @@ export default {
         {
             this.$emit('move-down', this.task.id);
         },
+
+        setDeadline(date) {
+            this.task.deadline = !date ? date : new Date(date).toISOString().substr(0, 10);
+
+            this.$http.put(`/projects/${this.task.project_id}/tasks/${this.task.id}`, this.task).then(response => {
+            }, error => {
+            });
+        }
     }
 }
 </script>
@@ -116,5 +130,9 @@ export default {
     .form-group input {
         padding: 0;
         height: 20px;
-    } 
+    }
+
+    .vdp-datepicker {
+        display: inline-block;
+    }
 </style>

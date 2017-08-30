@@ -12,7 +12,11 @@
             {{ $projects->links() }}
         </div>
 
-        <projects class="col-md-8 col-md-offset-2" :data-projects="{{ json_encode($projects->items()) }}"></projects>
+        <projects
+            class="col-md-8 col-md-offset-2"
+            :data-projects="{{ json_encode($projects->items()) }}"
+            :current-page="{{ $projects->currentPage() }}"
+        ></projects>
     </div>
 </div>
 @endsection

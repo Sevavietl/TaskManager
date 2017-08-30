@@ -8358,3 +8358,11 @@ button.close {
   cursor: pointer;
 }
 
+.invisible-input {
+  display: none;
+}
+
+.inner-calendar {
+  right: 0;
+}
+

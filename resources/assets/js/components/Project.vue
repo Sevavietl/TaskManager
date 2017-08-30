@@ -2,20 +2,20 @@
     <div class="panel panel-primary">
         <div    
             class="panel-heading"
-            @mouseenter.stop="hover = true"
-            @mouseleave.stop="hover = false"
+            @mouseenter.stop="showIcons"
+            @mouseleave.stop="hideIcons"
         >
             <div class="row">
-                <div class="col-sm-1 col-md-1 col-lg-1">
+                <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
                     <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
                 </div>
-                <div class="col-sm-9  col-md-9 col-lg-9">
+                <div class="col-xs-8 col-sm-9 col-md-9 col-lg-9">
                     <div class="form-group" :class="{'has-error': errors.title}" v-show="editing">
                         <input
                             ref="titleInput"
                             type="text"
                             class="form-control"
-                            v-model="title"
+                            v-model="field"
                             @keyup.enter="submit"
                             @keyup.esc="cancel"
                             @focus="removeErrors('title')"
@@ -26,7 +26,7 @@
                         {{ project.title }}
                     </span>
                 </div>
-                <div class="col-sm-2  col-md-2 col-lg-2">
+                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-2">
                     <div v-if="hover" class="pull-right">
                         <span v-if="editing" class="glyphicon glyphicon-ban-circle text-danger" aria-hidden="true" @click="cancel"></span>
                         <span v-else class="glyphicon glyphicon-pencil" aria-hidden="true" @click="edit"></span>
@@ -63,10 +63,14 @@
 <script>
 import TaskForm from './TaskForm.vue';
 import Task from './Task.vue';
-import ErrorsMixin from './ErrorsMixin.js';
+import IconsMixin from './mixins/IconsMixin.js';
+import EditMixin from './mixins/EditMixin.js';
+import ErrorsMixin from './mixins/ErrorsMixin.js';
 
 export default {
     mixins: [
+        IconsMixin,
+        EditMixin,
         ErrorsMixin
     ],
 
@@ -77,42 +81,25 @@ export default {
 
     props: ['project'],
 
-    data() {
-        return {
-            hover: false,
-            editing: false,
-            title: null,
-        };
-    },
-
     created() {
-        this.title = this.project.title;
+        this.editValuePath = 'project.title';
         this.sortTasks();
     },
 
     methods: {
-        edit() {
-            this.title = this.project.title;
-            this.editing = true;
-        },
-
         submit() {
             this.$http.put(
                 `/projects/${this.project.id}`,
-                {title: this.title}
+                {title: this.field}
             ).then(response => {
                 this.project.title = response.data.title;
-                this.editing = false;
+                this.cancel();
             }, error => {
                 const response = error.response;
                 if (response.status === 422) {
                     this.errors = response.data;
                 }
             });
-        },
-
-        cancel() {
-            this.editing = false;
         },
 
         remove() {
@@ -130,8 +117,8 @@ export default {
 
             this.project.tasks.push(task);
             
-            if (this.project.tasks_order === undefined) {
-                this.project.tasks_order = [];
+            if (this.project.tasks_order === undefined || this.project.tasks_order === null) {
+                Vue.set(this.project, 'tasks_order', []);
             }
 
             this.project.tasks_order.push(task.id);

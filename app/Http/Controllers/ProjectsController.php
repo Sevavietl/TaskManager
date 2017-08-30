@@ -22,7 +22,10 @@ class ProjectsController extends Controller
      */
     public function index()
     {
-        $projects = Project::owned()->with('tasks')->paginate(2);
+        $projects = Project::owned()
+            ->with('tasks')
+            ->orderBy('created_at', 'desc')
+            ->paginate(2);
 
         return view('home', compact('projects'));
     }

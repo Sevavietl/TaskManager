@@ -48,6 +48,7 @@ class TasksController extends Controller
 
         $task->description = request('description');
         $task->done = request('done');
+        $task->deadline = request('deadline');
         $task->save();
 
         return response($task);
