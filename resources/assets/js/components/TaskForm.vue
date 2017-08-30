@@ -43,7 +43,7 @@ export default {
         add() {
             const task = Object.assign({}, this.blueprint, {description: this.description});
 
-            this.$http.post(`/projects/${this.projectId}/tasks`, task).then(response => {
+            axios.post(`/projects/${this.projectId}/tasks`, task).then(response => {
                 this.$emit('add', response.data);
                 this.description = '';
             }, error => {

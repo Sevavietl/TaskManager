@@ -81,7 +81,7 @@ export default {
         submit() {
             const task = Object.assign({}, this.task, {description: this.field});
 
-            this.$http.put(`/projects/${this.task.project_id}/tasks/${task.id}`, task).then(response => {
+            axios.put(`/projects/${this.task.project_id}/tasks/${task.id}`, task).then(response => {
                 this.task.description = response.data.description;
                 this.cancel();
             }, error => {
@@ -94,7 +94,7 @@ export default {
         },
 
         remove() {
-            this.$http.delete(`/projects/${this.task.project_id}/tasks/${this.task.id}`).then(response => {
+            axios.delete(`/projects/${this.task.project_id}/tasks/${this.task.id}`).then(response => {
                 this.$emit('remove');
             }, error => {
 
@@ -114,7 +114,7 @@ export default {
         setDeadline(date) {
             this.task.deadline = !date ? date : new Date(date).toISOString().substr(0, 10);
 
-            this.$http.put(`/projects/${this.task.project_id}/tasks/${this.task.id}`, this.task).then(response => {
+            axios.put(`/projects/${this.task.project_id}/tasks/${this.task.id}`, this.task).then(response => {
             }, error => {
             });
         }

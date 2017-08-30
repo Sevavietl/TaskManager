@@ -88,7 +88,7 @@ export default {
 
     methods: {
         submit() {
-            this.$http.put(
+            axios.put(
                 `/projects/${this.project.id}`,
                 {title: this.field}
             ).then(response => {
@@ -103,7 +103,7 @@ export default {
         },
 
         remove() {
-            this.$http.delete(`/projects/${this.project.id}`).then(response => {
+            axios.delete(`/projects/${this.project.id}`).then(response => {
                 this.$emit('remove');
             }, error => {
 
@@ -187,7 +187,7 @@ export default {
         },
 
         updateTasksOrder() {
-            this.$http.put(
+            axios.put(
                 `/projects/${this.project.id}`,
                 this.project
             ).then(response => {

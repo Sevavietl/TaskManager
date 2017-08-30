@@ -15,8 +15,15 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
+axios.interceptors.response.use(undefined, error => {
+    const response = error.response;
 
-import axios from 'axios';
+    if (response.status === 401) {
+        window.location.reload();
+    }
+
+    return Promise.reject(error);
+});
 
 Vue.prototype.$http = axios.create();
 

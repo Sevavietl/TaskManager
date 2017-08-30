@@ -47,7 +47,7 @@ export default {
         add() {
             const project = Object.assign({}, this.boilerplate, {title: "New TODO List"});
             
-            this.$http.post('/projects', project).then(response => {
+            axios.post('/projects', project).then(response => {
                 window.location.replace('/');
             }, error => {
                 console.log(`Error: ${error}`);
