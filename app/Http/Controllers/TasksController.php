@@ -10,6 +10,11 @@ use Validator;
 
 class TasksController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth', 'ajax']);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
