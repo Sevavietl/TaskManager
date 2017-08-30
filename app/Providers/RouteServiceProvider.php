@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
+use App\Project;
+
 class RouteServiceProvider extends ServiceProvider
 {
     /**
@@ -23,7 +25,11 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Route::bind('project', function ($id) {
+            return Project::where('id', $id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+        });
 
         parent::boot();
     }
