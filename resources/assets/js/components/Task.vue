@@ -6,7 +6,7 @@
     >
         <div class="row">
             <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-                <input type="checkbox" v-model="task.done" :disabled="editing" @change="submit">
+                <input type="checkbox" v-model="task.done" :disabled="editing" @change="submit(false)">
             </div>
             <div class="col-xs-7 col-sm-8  col-md-8 col-lg-8">
                 <div class="form-group" :class="{'has-error': errors.description}" v-if="editing">
@@ -15,7 +15,7 @@
                         type="text"
                         class="form-control"
                         v-model="field"
-                        @keyup.enter="submit"
+                        @keyup.enter="submit(true)"
                         @keyup.esc="cancel"
                         @focus="removeErrors('description')"
                     >
@@ -78,8 +78,8 @@ export default {
     },
 
     methods: {
-        submit() {
-            const task = Object.assign({}, this.task, {description: this.field});
+        submit(changeField = false) {
+            const task = changeField ? Object.assign({}, this.task, {description: this.field}) : this.task;
 
             axios.put(`/projects/${this.task.project_id}/tasks/${task.id}`, task).then(response => {
                 this.task.description = response.data.description;
@@ -126,9 +126,7 @@ export default {
         setDeadline(date) {
             this.task.deadline = !date ? date : new Date(date).toISOString().substr(0, 10);
 
-            axios.put(`/projects/${this.task.project_id}/tasks/${this.task.id}`, this.task).then(response => {
-            }, error => {
-            });
+            this.submit(false);
         }
     }
 }
