@@ -124,6 +124,7 @@ INNER JOIN (
 ) `temp` ON CONCAT(`t`.`name`, `t`.status) = `temp`.`ns`
 WHERE `p`.`name` = 'Garage'
 GROUP BY `t`.`name`, `t`.`status`
+ORDER BY `c` ASC
 ```
 
 8. get the list of project names having more than 10 tasks in status 'completed'. Order by project_id
